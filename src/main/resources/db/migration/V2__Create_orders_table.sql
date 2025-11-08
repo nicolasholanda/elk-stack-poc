@@ -1,0 +1,12 @@
+CREATE TABLE orders (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    order_number VARCHAR(50) NOT NULL UNIQUE,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    total_amount DECIMAL(19, 2) NOT NULL,
+    description VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
