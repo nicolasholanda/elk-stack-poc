@@ -1,0 +1,164 @@
+{
+  "version": "8.15.0",
+  "objects": [
+    {
+      "type": "dashboard",
+      "id": "api-overview-dashboard",
+      "attributes": {
+        "title": "API Overview",
+        "description": "High-level overview of API traffic, status codes, and request distribution",
+        "tags": ["elk-stack-poc", "api", "overview"],
+        "timeRestore": true,
+        "timeFrom": "now-24h",
+        "timeTo": "now",
+        "refreshInterval": {
+          "pause": false,
+          "value": 30000
+        },
+        "gridData": {
+          "w": 24,
+          "h": 15,
+          "x": 0,
+          "y": 0
+        },
+        "panelsJSON": "[{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":0,\"w\":12,\"h\":15},\"type\":\"visualization\",\"embeddableConfig\":{},\"panelIndex\":\"1\",\"embeddableConfig\":{},\"panelRefName\":\"panel_1\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":12,\"y\":0,\"w\":12,\"h\":15},\"type\":\"visualization\",\"embeddableConfig\":{},\"panelIndex\":\"2\",\"embeddableConfig\":{},\"panelRefName\":\"panel_2\"}]",
+        "panelReferences": [
+          {
+            "name": "panel_1",
+            "type": "visualization",
+            "id": "requests-over-time"
+          },
+          {
+            "name": "panel_2",
+            "type": "visualization",
+            "id": "status-codes-distribution"
+          }
+        ]
+      }
+    },
+    {
+      "type": "visualization",
+      "id": "requests-over-time",
+      "attributes": {
+        "title": "Requests Over Time",
+        "description": "Total number of requests over time",
+        "visualizationType": "lnsXY",
+        "state": {
+          "datasourceStates": {
+            "formBased": {
+              "layers": {
+                "layer_1": {
+                  "columns": [
+                    {
+                      "columnId": "col1",
+                      "fieldName": "@timestamp",
+                      "meta": {
+                        "type": "date"
+                      },
+                      "customLabel": "Time",
+                      "operationType": "date_histogram",
+                      "params": {
+                        "interval": "auto"
+                      }
+                    },
+                    {
+                      "columnId": "col2",
+                      "operationType": "count",
+                      "customLabel": "Count"
+                    }
+                  ],
+                  "indexPatternId": "logstash",
+                  "sampling": 1
+                }
+              },
+              "indexPatterns": ["logstash"]
+            }
+          },
+          "visualization": {
+            "axisTitles": {},
+            "layers": [
+              {
+                "layerId": "layer_1",
+                "accessors": ["col2"],
+                "position": "top",
+                "seriesType": "line",
+                "showGridlines": false,
+                "palette": {
+                  "type": "palette",
+                  "name": "default"
+                }
+              }
+            ],
+            "legend": {
+              "isVisible": true,
+              "position": "right"
+            },
+            "valueLabels": "hide"
+          }
+        }
+      }
+    },
+    {
+      "type": "visualization",
+      "id": "status-codes-distribution",
+      "attributes": {
+        "title": "Status Codes Distribution",
+        "description": "Distribution of HTTP status codes",
+        "visualizationType": "lnsPie",
+        "state": {
+          "datasourceStates": {
+            "formBased": {
+              "layers": {
+                "layer_1": {
+                  "columns": [
+                    {
+                      "columnId": "col1",
+                      "fieldName": "http_status",
+                      "operationType": "terms",
+                      "params": {
+                        "orderBy": {
+                          "columnId": "col2",
+                          "type": "column"
+                        },
+                        "orderDirection": "descending",
+                        "size": 10
+                      },
+                      "customLabel": "Status Code"
+                    },
+                    {
+                      "columnId": "col2",
+                      "operationType": "count",
+                      "customLabel": "Count"
+                    }
+                  ],
+                  "indexPatternId": "logstash",
+                  "sampling": 1
+                }
+              },
+              "indexPatterns": ["logstash"]
+            }
+          },
+          "visualization": {
+            "shape": "donut",
+            "layers": [
+              {
+                "layerId": "layer_1",
+                "groups": ["col1"],
+                "metric": "col2",
+                "numberDisplay": "percent",
+                "categoryDisplay": "default",
+                "legendDisplay": "default",
+                "nestedLegend": true,
+                "palette": {
+                  "type": "palette",
+                  "name": "status"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+
