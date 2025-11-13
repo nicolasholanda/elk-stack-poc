@@ -1,0 +1,167 @@
+{
+  "version": "8.15.0",
+  "objects": [
+    {
+      "type": "dashboard",
+      "id": "business-kpis-dashboard",
+      "attributes": {
+        "title": "Business KPIs",
+        "description": "Business metrics including user creation trends and order volumes",
+        "tags": ["elk-stack-poc", "business", "kpis"],
+        "timeRestore": true,
+        "timeFrom": "now-24h",
+        "timeTo": "now",
+        "refreshInterval": {
+          "pause": false,
+          "value": 30000
+        },
+        "gridData": {
+          "w": 24,
+          "h": 15,
+          "x": 0,
+          "y": 0
+        },
+        "panelsJSON": "[{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":0,\"w\":12,\"h\":15},\"type\":\"visualization\",\"embeddableConfig\":{},\"panelIndex\":\"1\",\"panelRefName\":\"panel_1\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":12,\"y\":0,\"w\":12,\"h\":15},\"type\":\"visualization\",\"embeddableConfig\":{},\"panelIndex\":\"2\",\"panelRefName\":\"panel_2\"}]",
+        "panelReferences": [
+          {
+            "name": "panel_1",
+            "type": "visualization",
+            "id": "users-created-over-time"
+          },
+          {
+            "name": "panel_2",
+            "type": "visualization",
+            "id": "orders-created-over-time"
+          }
+        ]
+      }
+    },
+    {
+      "type": "visualization",
+      "id": "users-created-over-time",
+      "attributes": {
+        "title": "Users Created Over Time",
+        "description": "Cumulative count of users created per time period",
+        "visualizationType": "lnsXY",
+        "state": {
+          "datasourceStates": {
+            "formBased": {
+              "layers": {
+                "layer_1": {
+                  "columns": [
+                    {
+                      "columnId": "col1",
+                      "fieldName": "@timestamp",
+                      "operationType": "date_histogram",
+                      "params": {
+                        "interval": "auto"
+                      },
+                      "customLabel": "Time"
+                    },
+                    {
+                      "columnId": "col2",
+                      "fieldName": "user_id",
+                      "operationType": "count",
+                      "filter": {
+                        "query": "message: *user*"
+                      },
+                      "customLabel": "Users"
+                    }
+                  ],
+                  "indexPatternId": "logstash",
+                  "sampling": 1
+                }
+              },
+              "indexPatterns": ["logstash"]
+            }
+          },
+          "visualization": {
+            "axisTitles": {
+              "yLeftTitle": "User Count"
+            },
+            "layers": [
+              {
+                "layerId": "layer_1",
+                "accessors": ["col2"],
+                "position": "top",
+                "seriesType": "area",
+                "showGridlines": true,
+                "palette": {
+                  "type": "palette",
+                  "name": "positive"
+                }
+              }
+            ],
+            "legend": {
+              "isVisible": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "visualization",
+      "id": "orders-created-over-time",
+      "attributes": {
+        "title": "Orders Created Over Time",
+        "description": "Cumulative count of orders created per time period",
+        "visualizationType": "lnsXY",
+        "state": {
+          "datasourceStates": {
+            "formBased": {
+              "layers": {
+                "layer_1": {
+                  "columns": [
+                    {
+                      "columnId": "col1",
+                      "fieldName": "@timestamp",
+                      "operationType": "date_histogram",
+                      "params": {
+                        "interval": "auto"
+                      },
+                      "customLabel": "Time"
+                    },
+                    {
+                      "columnId": "col2",
+                      "fieldName": "order_id",
+                      "operationType": "count",
+                      "filter": {
+                        "query": "message: *order*"
+                      },
+                      "customLabel": "Orders"
+                    }
+                  ],
+                  "indexPatternId": "logstash",
+                  "sampling": 1
+                }
+              },
+              "indexPatterns": ["logstash"]
+            }
+          },
+          "visualization": {
+            "axisTitles": {
+              "yLeftTitle": "Order Count"
+            },
+            "layers": [
+              {
+                "layerId": "layer_1",
+                "accessors": ["col2"],
+                "position": "top",
+                "seriesType": "area",
+                "showGridlines": true,
+                "palette": {
+                  "type": "palette",
+                  "name": "positive"
+                }
+              }
+            ],
+            "legend": {
+              "isVisible": false
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+
