@@ -1,0 +1,257 @@
+{
+  "version": "8.15.0",
+  "objects": [
+    {
+      "type": "dashboard",
+      "id": "performance-metrics-dashboard",
+      "attributes": {
+        "title": "Performance Metrics",
+        "description": "API performance metrics including response times and throughput",
+        "tags": ["elk-stack-poc", "performance", "metrics"],
+        "timeRestore": true,
+        "timeFrom": "now-24h",
+        "timeTo": "now",
+        "refreshInterval": {
+          "pause": false,
+          "value": 30000
+        },
+        "gridData": {
+          "w": 24,
+          "h": 15,
+          "x": 0,
+          "y": 0
+        },
+        "panelsJSON": "[{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":0,\"w\":8,\"h\":15},\"type\":\"visualization\",\"embeddableConfig\":{},\"panelIndex\":\"1\",\"panelRefName\":\"panel_1\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":8,\"y\":0,\"w\":8,\"h\":15},\"type\":\"visualization\",\"embeddableConfig\":{},\"panelIndex\":\"2\",\"panelRefName\":\"panel_2\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":16,\"y\":0,\"w\":8,\"h\":15},\"type\":\"visualization\",\"embeddableConfig\":{},\"panelIndex\":\"3\",\"panelRefName\":\"panel_3\"}]",
+        "panelReferences": [
+          {
+            "name": "panel_1",
+            "type": "visualization",
+            "id": "response-time-percentiles"
+          },
+          {
+            "name": "panel_2",
+            "type": "visualization",
+            "id": "throughput-by-endpoint"
+          },
+          {
+            "name": "panel_3",
+            "type": "visualization",
+            "id": "slow-endpoints"
+          }
+        ]
+      }
+    },
+    {
+      "type": "visualization",
+      "id": "response-time-percentiles",
+      "attributes": {
+        "title": "Response Time Percentiles",
+        "description": "P50, P95, P99 response times over time",
+        "visualizationType": "lnsXY",
+        "state": {
+          "datasourceStates": {
+            "formBased": {
+              "layers": {
+                "layer_1": {
+                  "columns": [
+                    {
+                      "columnId": "col1",
+                      "fieldName": "@timestamp",
+                      "operationType": "date_histogram",
+                      "params": {
+                        "interval": "auto"
+                      },
+                      "customLabel": "Time"
+                    },
+                    {
+                      "columnId": "col2",
+                      "fieldName": "response_time",
+                      "operationType": "percentile",
+                      "params": {
+                        "percentile": 50
+                      },
+                      "customLabel": "P50"
+                    },
+                    {
+                      "columnId": "col3",
+                      "fieldName": "response_time",
+                      "operationType": "percentile",
+                      "params": {
+                        "percentile": 95
+                      },
+                      "customLabel": "P95"
+                    },
+                    {
+                      "columnId": "col4",
+                      "fieldName": "response_time",
+                      "operationType": "percentile",
+                      "params": {
+                        "percentile": 99
+                      },
+                      "customLabel": "P99"
+                    }
+                  ],
+                  "indexPatternId": "logstash",
+                  "sampling": 1
+                }
+              },
+              "indexPatterns": ["logstash"]
+            }
+          },
+          "visualization": {
+            "axisTitles": {
+              "yLeftTitle": "Response Time (ms)"
+            },
+            "layers": [
+              {
+                "layerId": "layer_1",
+                "accessors": ["col2", "col3", "col4"],
+                "position": "top",
+                "seriesType": "line",
+                "showGridlines": true,
+                "palette": {
+                  "type": "palette",
+                  "name": "warm"
+                }
+              }
+            ],
+            "legend": {
+              "isVisible": true,
+              "position": "bottom"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "visualization",
+      "id": "throughput-by-endpoint",
+      "attributes": {
+        "title": "Throughput by Endpoint",
+        "description": "Number of requests per endpoint",
+        "visualizationType": "lnsXY",
+        "state": {
+          "datasourceStates": {
+            "formBased": {
+              "layers": {
+                "layer_1": {
+                  "columns": [
+                    {
+                      "columnId": "col1",
+                      "fieldName": "http_path",
+                      "operationType": "terms",
+                      "params": {
+                        "orderBy": {
+                          "columnId": "col2",
+                          "type": "column"
+                        },
+                        "orderDirection": "descending",
+                        "size": 10
+                      },
+                      "customLabel": "Endpoint"
+                    },
+                    {
+                      "columnId": "col2",
+                      "operationType": "count",
+                      "customLabel": "Requests"
+                    }
+                  ],
+                  "indexPatternId": "logstash",
+                  "sampling": 1
+                }
+              },
+              "indexPatterns": ["logstash"]
+            }
+          },
+          "visualization": {
+            "axisTitles": {
+              "yLeftTitle": "Request Count"
+            },
+            "layers": [
+              {
+                "layerId": "layer_1",
+                "accessors": ["col2"],
+                "position": "top",
+                "seriesType": "bar",
+                "xAccessor": "col1",
+                "palette": {
+                  "type": "palette",
+                  "name": "default"
+                }
+              }
+            ],
+            "legend": {
+              "isVisible": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "visualization",
+      "id": "slow-endpoints",
+      "attributes": {
+        "title": "Top 10 Slowest Endpoints",
+        "description": "Endpoints with highest average response times",
+        "visualizationType": "lnsXY",
+        "state": {
+          "datasourceStates": {
+            "formBased": {
+              "layers": {
+                "layer_1": {
+                  "columns": [
+                    {
+                      "columnId": "col1",
+                      "fieldName": "http_path",
+                      "operationType": "terms",
+                      "params": {
+                        "orderBy": {
+                          "columnId": "col2",
+                          "type": "column"
+                        },
+                        "orderDirection": "descending",
+                        "size": 10
+                      },
+                      "customLabel": "Endpoint"
+                    },
+                    {
+                      "columnId": "col2",
+                      "fieldName": "response_time",
+                      "operationType": "average",
+                      "customLabel": "Avg Response Time"
+                    }
+                  ],
+                  "indexPatternId": "logstash",
+                  "sampling": 1
+                }
+              },
+              "indexPatterns": ["logstash"]
+            }
+          },
+          "visualization": {
+            "axisTitles": {
+              "yLeftTitle": "Avg Response Time (ms)"
+            },
+            "layers": [
+              {
+                "layerId": "layer_1",
+                "accessors": ["col2"],
+                "position": "top",
+                "seriesType": "bar",
+                "xAccessor": "col1",
+                "palette": {
+                  "type": "palette",
+                  "name": "warm"
+                }
+              }
+            ],
+            "legend": {
+              "isVisible": false
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+
