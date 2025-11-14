@@ -1,0 +1,277 @@
+{
+  "version": "8.15.0",
+  "objects": [
+    {
+      "type": "dashboard",
+      "id": "error-analysis-dashboard",
+      "attributes": {
+        "title": "Error Analysis",
+        "description": "Error tracking and analysis dashboard",
+        "tags": ["elk-stack-poc", "errors", "troubleshooting"],
+        "timeRestore": true,
+        "timeFrom": "now-24h",
+        "timeTo": "now",
+        "refreshInterval": {
+          "pause": false,
+          "value": 30000
+        },
+        "gridData": {
+          "w": 24,
+          "h": 15,
+          "x": 0,
+          "y": 0
+        },
+        "panelsJSON": "[{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":0,\"w\":12,\"h\":8},\"type\":\"visualization\",\"embeddableConfig\":{},\"panelIndex\":\"1\",\"panelRefName\":\"panel_1\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":12,\"y\":0,\"w\":12,\"h\":8},\"type\":\"visualization\",\"embeddableConfig\":{},\"panelIndex\":\"2\",\"panelRefName\":\"panel_2\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":8,\"w\":24,\"h\":7},\"type\":\"visualization\",\"embeddableConfig\":{},\"panelIndex\":\"3\",\"panelRefName\":\"panel_3\"}]",
+        "panelReferences": [
+          {
+            "name": "panel_1",
+            "type": "visualization",
+            "id": "error-rate-over-time"
+          },
+          {
+            "name": "panel_2",
+            "type": "visualization",
+            "id": "errors-by-endpoint"
+          },
+          {
+            "name": "panel_3",
+            "type": "visualization",
+            "id": "error-messages-table"
+          }
+        ]
+      }
+    },
+    {
+      "type": "visualization",
+      "id": "error-rate-over-time",
+      "attributes": {
+        "title": "Error Rate Over Time",
+        "description": "Percentage of failed requests (4xx, 5xx) over time",
+        "visualizationType": "lnsXY",
+        "state": {
+          "datasourceStates": {
+            "formBased": {
+              "layers": {
+                "layer_1": {
+                  "columns": [
+                    {
+                      "columnId": "col1",
+                      "fieldName": "@timestamp",
+                      "operationType": "date_histogram",
+                      "params": {
+                        "interval": "auto"
+                      },
+                      "customLabel": "Time"
+                    },
+                    {
+                      "columnId": "col2",
+                      "fieldName": "http_status",
+                      "operationType": "count",
+                      "filter": {
+                        "query": "http_status >= 400"
+                      },
+                      "customLabel": "Error Count"
+                    },
+                    {
+                      "columnId": "col3",
+                      "operationType": "count",
+                      "customLabel": "Total Count"
+                    }
+                  ],
+                  "indexPatternId": "logstash",
+                  "sampling": 1
+                }
+              },
+              "indexPatterns": ["logstash"]
+            }
+          },
+          "visualization": {
+            "axisTitles": {
+              "yLeftTitle": "Error Rate (%)"
+            },
+            "layers": [
+              {
+                "layerId": "layer_1",
+                "accessors": ["col2"],
+                "position": "top",
+                "seriesType": "area",
+                "showGridlines": true,
+                "palette": {
+                  "type": "palette",
+                  "name": "negative"
+                }
+              }
+            ],
+            "legend": {
+              "isVisible": true,
+              "position": "bottom"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "visualization",
+      "id": "errors-by-endpoint",
+      "attributes": {
+        "title": "Errors by Endpoint",
+        "description": "Count of 4xx and 5xx responses by endpoint",
+        "visualizationType": "lnsXY",
+        "state": {
+          "datasourceStates": {
+            "formBased": {
+              "layers": {
+                "layer_1": {
+                  "columns": [
+                    {
+                      "columnId": "col1",
+                      "fieldName": "http_path",
+                      "operationType": "terms",
+                      "params": {
+                        "orderBy": {
+                          "columnId": "col2",
+                          "type": "column"
+                        },
+                        "orderDirection": "descending",
+                        "size": 10
+                      },
+                      "customLabel": "Endpoint"
+                    },
+                    {
+                      "columnId": "col2",
+                      "fieldName": "http_status",
+                      "operationType": "count",
+                      "filter": {
+                        "query": "http_status >= 400"
+                      },
+                      "customLabel": "Error Count"
+                    }
+                  ],
+                  "indexPatternId": "logstash",
+                  "sampling": 1
+                }
+              },
+              "indexPatterns": ["logstash"]
+            }
+          },
+          "visualization": {
+            "axisTitles": {
+              "yLeftTitle": "Error Count"
+            },
+            "layers": [
+              {
+                "layerId": "layer_1",
+                "accessors": ["col2"],
+                "position": "top",
+                "seriesType": "bar",
+                "xAccessor": "col1",
+                "palette": {
+                  "type": "palette",
+                  "name": "negative"
+                }
+              }
+            ],
+            "legend": {
+              "isVisible": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "visualization",
+      "id": "error-messages-table",
+      "attributes": {
+        "title": "Recent Error Messages",
+        "description": "Table of recent errors with request IDs for correlation",
+        "visualizationType": "lnsTable",
+        "state": {
+          "datasourceStates": {
+            "formBased": {
+              "layers": {
+                "layer_1": {
+                  "columns": [
+                    {
+                      "columnId": "col1",
+                      "fieldName": "@timestamp",
+                      "operationType": "date",
+                      "customLabel": "Timestamp"
+                    },
+                    {
+                      "columnId": "col2",
+                      "fieldName": "log_level",
+                      "operationType": "terms",
+                      "params": {
+                        "size": 5,
+                        "orderBy": {
+                          "columnId": "col1",
+                          "type": "column"
+                        },
+                        "orderDirection": "descending"
+                      },
+                      "customLabel": "Log Level"
+                    },
+                    {
+                      "columnId": "col3",
+                      "fieldName": "http_path",
+                      "operationType": "terms",
+                      "params": {
+                        "size": 50,
+                        "orderBy": {
+                          "columnId": "col1",
+                          "type": "column"
+                        },
+                        "orderDirection": "descending"
+                      },
+                      "customLabel": "Endpoint"
+                    },
+                    {
+                      "columnId": "col4",
+                      "fieldName": "message",
+                      "operationType": "terms",
+                      "params": {
+                        "size": 100,
+                        "orderBy": {
+                          "columnId": "col1",
+                          "type": "column"
+                        },
+                        "orderDirection": "descending"
+                      },
+                      "customLabel": "Message"
+                    },
+                    {
+                      "columnId": "col5",
+                      "fieldName": "request_id",
+                      "operationType": "terms",
+                      "params": {
+                        "size": 50,
+                        "orderBy": {
+                          "columnId": "col1",
+                          "type": "column"
+                        },
+                        "orderDirection": "descending"
+                      },
+                      "customLabel": "Request ID"
+                    }
+                  ],
+                  "indexPatternId": "logstash",
+                  "sampling": 1
+                }
+              },
+              "indexPatterns": ["logstash"]
+            }
+          },
+          "visualization": {
+            "columns": ["col1", "col2", "col3", "col4", "col5"],
+            "layerId": "layer_1",
+            "sorting": {
+              "columnId": "col1",
+              "direction": "descending"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+
